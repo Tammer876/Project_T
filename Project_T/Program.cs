@@ -60,7 +60,7 @@ namespace silkgl
 
         private static void OnFramebufferResize(Vector2D<int> newSize)
         {
-
+            gl.Viewport(newSize);
         }
 
         private static void OnClose()
