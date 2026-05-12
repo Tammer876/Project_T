@@ -11,7 +11,6 @@ namespace silkgl
     {
         private static IWindow window;
         private static GL gl;
-        
 
         public static void Main(string[] args)
         {
@@ -19,6 +18,7 @@ namespace silkgl
             {
                 Size = new Vector2D<int>(800, 600),
                 Title = "Project_T",
+                API = new GraphicsAPI(ContextAPI.OpenGL, ContextProfile.Core, ContextFlags.Default, new APIVersion(4, 1))
             };
             
             window = Window.Create(windowOptions);
@@ -70,21 +70,20 @@ namespace silkgl
 
         private static void KeyDown(IKeyboard keyboard, Key key, int arg)
         {
-            if (key == Key.G)
+            switch (key)
             {
-                gl.ClearColor(0.0f, 1f, 0.0f, 1.0f);
-            }
-            else if (key == Key.R)
-            {
-                gl.ClearColor(1f, 0.0f, 0.0f, 1.0f);
-            }
-            else if (key == Key.C)
-            {
-                gl.ClearColor(0.0f, 0.0f, 0.0f, 0.0f);
-            }
-            else if (key == Key.Escape)
-            {
-                window.Close();
+                case Key.G:
+                    gl.ClearColor(0.0f, 1f, 0.0f, 1.0f);
+                    break;
+                case Key.R:
+                    gl.ClearColor(1f, 0.0f, 0.0f, 1.0f);
+                    break;
+                case Key.C:
+                    gl.ClearColor(0.0f, 0.0f, 0.0f, 0.0f);
+                    break;
+                case Key.Escape:
+                    window.Close();
+                    break;
             }
         }
     }
