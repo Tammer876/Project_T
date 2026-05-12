@@ -1,3 +1,4 @@
+using System;
 using Silk.NET.GLFW;
 using Silk.NET.Windowing;
 using Silk.NET.Input;
@@ -8,8 +9,10 @@ namespace silkgl
 {
     public class MainLoop
     {
-        public static IWindow window;
+        private static IWindow window;
+        private static GL gl;
         
+
         public static void Main(string[] args)
         {
             WindowOptions windowOptions = WindowOptions.Default with
@@ -24,6 +27,7 @@ namespace silkgl
             window.Update += OnUpdate;
             window.Render += OnRender;
             window.FramebufferResize += OnFramebufferResize;
+            window.Closing += OnClose;
             
             window.Run();
             
@@ -33,25 +37,55 @@ namespace silkgl
 
         public static void OnLoad()
         {
-            GL gl = window.CreateOpenGL();
-            gl = window.CreateOpenGL();
+            gl = GL.GetApi(window);
             IInputContext input = window.CreateInput();
-            gl.Viewport(window.FramebufferSize);
+            for (int i = 0; i < input.Keyboards.Count; i++)
+            {
+                input.Keyboards[i].KeyDown += KeyDown;
+            }
+            
+            gl.ClearColor(1f, 0.0f, 0.0f, 0.0f);
+            gl.Clear(ClearBufferMask.ColorBufferBit);
         }
 
         public static void OnUpdate(double obj)
         {
-
+        
         }
-
+        
         public static void OnRender(double obj)
         {
-
+            gl.Clear(ClearBufferMask.ColorBufferBit);
         }
 
         private static void OnFramebufferResize(Vector2D<int> newSize)
         {
 
+        }
+
+        private static void OnClose()
+        {
+            Console.WriteLine("Closing...");
+        }
+
+        private static void KeyDown(IKeyboard keyboard, Key key, int arg)
+        {
+            if (key == Key.G)
+            {
+                gl.ClearColor(0.0f, 1f, 0.0f, 1.0f);
+            }
+            else if (key == Key.R)
+            {
+                gl.ClearColor(1f, 0.0f, 0.0f, 1.0f);
+            }
+            else if (key == Key.C)
+            {
+                gl.ClearColor(0.0f, 0.0f, 0.0f, 0.0f);
+            }
+            else if (key == Key.Escape)
+            {
+                window.Close();
+            }
         }
     }
 }
