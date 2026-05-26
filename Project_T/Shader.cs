@@ -1,4 +1,5 @@
 using System;
+using System.IO;
 using System.Numerics;
 using Silk.NET.OpenGL;
 
@@ -6,51 +7,29 @@ namespace silkgl;
 
 public class Shader
 {
-    private uint shaderID;
+    private uint shaderID; 
     private GL gl;
 
-    public Shader(string vShaderSource, string fShaderSource, ref GL gl_ref)
+    public Shader(string vShaderSource, string fShaderSource, GL gl_ref)
     {
-        shaderID = initShader(vShaderSource, fShaderSource);
         gl = gl_ref;
+        shaderID = initShader(vShaderSource, fShaderSource);
     }
 
     private uint initShader(string vertexShaderSource, string fragmentShaderSource)
     {
-        //debug feature for shader compilation
-        Action<uint, string> CheckShaderLog = delegate(uint shader, string shaderSource)
-#if DEBUG
-        {
-            gl.GetShaderInfoLog(shader, out string infoLog);
-            if (!string.IsNullOrWhiteSpace(infoLog))
-            {
-                Console.WriteLine($"Error compiling vertex shader {shaderSource}: {infoLog}");
-            }
-        };
-#else
-        {};
-#endif
+        uint vertexShader = LoadShader(ShaderType.VertexShader,  vertexShaderSource);
+        uint fragmentShader = LoadShader(ShaderType.FragmentShader, fragmentShaderSource);
         
-        uint vertexShader = gl.CreateShader(ShaderType.VertexShader);
-        uint fragmentShader = gl.CreateShader(ShaderType.FragmentShader);
-        
-        gl.ShaderSource(vertexShader, fragmentShaderSource);
-        gl.ShaderSource(fragmentShader, fragmentShaderSource);
-        
-        gl.CompileShader(vertexShader);
-        CheckShaderLog(vertexShader, vertexShaderSource);
-        gl.CompileShader(fragmentShader);
-        CheckShaderLog(fragmentShader, fragmentShaderSource);
-        
-        uint shaderProgram = gl.CreateProgram(); 
+        uint shaderProgram = gl.CreateProgram();
         gl.AttachShader(shaderProgram, vertexShader);
         gl.AttachShader(shaderProgram, fragmentShader);
         gl.LinkProgram(shaderProgram);
 #if DEBUG
-        gl.GetProgramInfoLog(shaderProgram, out string infoLog);
-        if (!string.IsNullOrWhiteSpace(infoLog))
+        gl.GetProgram(shaderProgram, GLEnum.LinkStatus, out var status);
+        if (status == 0)
         {
-            Console.WriteLine($"Error linking shaders {vertexShaderSource} and {fragmentShaderSource}: {infoLog}");
+            throw new Exception($"Error linking shaders {vertexShaderSource} and {fragmentShaderSource}: {gl.GetProgramInfoLog(shaderProgram)}");
         }
 #endif
         
@@ -60,6 +39,23 @@ public class Shader
         gl.DeleteShader(vertexShader);
         
         return shaderProgram;
+    }
+    
+    private uint LoadShader(ShaderType type, string path)
+    {
+        string src = File.ReadAllText(path);
+        uint handle = gl.CreateShader(type);
+        gl.ShaderSource(handle, src);
+        gl.CompileShader(handle);
+        
+#if DEBUG
+        string infoLog = gl.GetShaderInfoLog(handle);
+        if (!string.IsNullOrWhiteSpace(infoLog))
+        {
+            throw new Exception($"Error compiling shader of type {type}, failed with error {infoLog}");
+        }
+#endif
+        return handle;
     }
 
     public void Use()

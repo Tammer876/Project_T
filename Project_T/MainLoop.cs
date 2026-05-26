@@ -12,7 +12,7 @@ namespace silkgl
         private static IWindow window;
         private static GL gl;
         private static uint vao;
-        private static uint shader;
+        private static Shader shaderObject;
         private static uint[] objectArray = new uint[3];
         
         private static readonly string VertexShaderSource = @"
@@ -37,7 +37,7 @@ namespace silkgl
         ";
 
         //Vertex data, uploaded to the VBO.
-        private static readonly float[] Vertices =
+        private static float[] Vertices =
         {
             //X    Y      Z
             0.5f,  0.5f, 0.0f,
@@ -47,7 +47,7 @@ namespace silkgl
         };
 
         //Index data, uploaded to the EBO.
-        private static readonly uint[] Indices =
+        private static uint[] Indices =
         {
             0, 1, 2,
             3, 0, 2
@@ -89,49 +89,14 @@ namespace silkgl
             gl.ClearColor(0.0f, 0.0f, 0.0f, 0.0f);
             gl.Clear(ClearBufferMask.ColorBufferBit);
 
-            fixed (void* verticesPtr = &Vertices[0], indexPtr = &Indices[0])
-            {
-               uint[] objectArray = Renderer.initVertexArray(gl, verticesPtr, indexPtr, (uint) Vertices.Length, (uint) Indices.Length);
-               vao = objectArray[0];
-            }
             
-            uint vertexShader = gl.CreateShader(ShaderType.VertexShader);
-            gl.ShaderSource(vertexShader, VertexShaderSource);
-            gl.CompileShader(vertexShader);
-            
-            string infoLog = gl.GetShaderInfoLog(vertexShader);
-            if (!string.IsNullOrWhiteSpace(infoLog))
-            {
-                Console.WriteLine($"Error compiling vertex shader {infoLog}");
-                window.Close();
-            }
-            
-            uint fragmentShader = gl.CreateShader(ShaderType.FragmentShader);
-            gl.ShaderSource(fragmentShader, FragmentShaderSource);
-            gl.CompileShader(fragmentShader);
-            
-            infoLog = gl.GetShaderInfoLog(fragmentShader);
-            if (!string.IsNullOrWhiteSpace(infoLog))
-            {
-                Console.WriteLine($"Error compiling vertex shader {infoLog}");
-                window.Close();
-            }
+           objectArray = Renderer.InitVertexArray(ref gl, ref Vertices, ref Indices);
+           vao = objectArray[0];
 
-            shader = gl.CreateProgram();
-            gl.AttachShader(shader, vertexShader);
-            gl.AttachShader(shader, fragmentShader);
-            gl.LinkProgram(shader);
-            
-            gl.GetProgram(shader, GLEnum.LinkStatus, out var status);
-            if (status == 0)
-            {
-                Console.WriteLine($"Error linking shader {gl.GetProgramInfoLog(shader)}");
-            } 
-            
-            gl.DetachShader(shader, vertexShader);
-            gl.DetachShader(shader, fragmentShader);
-            gl.DeleteShader(vertexShader);
-            gl.DeleteShader(fragmentShader);
+           shaderObject = new Shader("Shaders/VertexShaderTest.glsl", 
+               "Shaders/FragmentShaderTest.glsl",
+               gl);
+           
             
             gl.VertexAttribPointer(0, 3, VertexAttribPointerType.Float, false, 3 * sizeof(float), null);
             gl.EnableVertexAttribArray(0);
@@ -147,7 +112,7 @@ namespace silkgl
             gl.Clear(ClearBufferMask.ColorBufferBit);
             
             gl.BindVertexArray(vao);
-            gl.UseProgram(shader);
+            shaderObject.Use();
             
             gl.DrawElements(PrimitiveType.Triangles, (uint) Indices.Length, DrawElementsType.UnsignedInt, null);
         }
@@ -164,7 +129,7 @@ namespace silkgl
             gl.DeleteBuffer(objectArray[1]);
             gl.DeleteBuffer(objectArray[2]);
             gl.DeleteVertexArray(vao);
-            gl.DeleteProgram(shader);
+            shaderObject.Destroy();
         }
 
         private static unsafe void KeyDown(IKeyboard keyboard, Key key, int arg)
@@ -202,7 +167,7 @@ namespace silkgl
                     }
                     
                     gl.VertexAttribPointer(0, 3, VertexAttribPointerType.Float, false, 3 * sizeof(float), null);
-                    gl.UseProgram(shader);
+                    shaderObject.Use();
                     gl.EnableVertexAttribArray(0);
                     gl.BindBuffer(BufferTargetARB.ArrayBuffer, 0);
                     break;
@@ -229,7 +194,7 @@ namespace silkgl
                     }
                     
                     gl.VertexAttribPointer(0, 3, VertexAttribPointerType.Float, false, 3 * sizeof(float), null);
-                    gl.UseProgram(shader);
+                    shaderObject.Use();
                     gl.EnableVertexAttribArray(0);
                     gl.BindBuffer(BufferTargetARB.ArrayBuffer, 0);
                     break;
