@@ -1,4 +1,5 @@
 using System;
+using System.Numerics;
 using Silk.NET.OpenGL;
 
 namespace silkgl;
@@ -8,9 +9,10 @@ public class Shader
     private uint shaderID;
     private GL gl;
 
-    public Shader(uint shaderId)
+    public Shader(string vShaderSource, string fShaderSource, ref GL gl_ref)
     {
-        shaderID = shaderId;
+        shaderID = initShader(vShaderSource, fShaderSource);
+        gl = gl_ref;
     }
 
     private uint initShader(string vertexShaderSource, string fragmentShaderSource)
@@ -28,6 +30,7 @@ public class Shader
 #else
         {};
 #endif
+        
         uint vertexShader = gl.CreateShader(ShaderType.VertexShader);
         uint fragmentShader = gl.CreateShader(ShaderType.FragmentShader);
         
@@ -58,6 +61,35 @@ public class Shader
         
         return shaderProgram;
     }
-    
+
+    public void Use()
+    {
+        gl.UseProgram(shaderID);
+    }
+
+    public void Destroy()
+    {
+        gl.DeleteProgram(shaderID);
+    }
+
+    public void SetFloat(ref string name, float value)
+    {
+        gl.Uniform1(gl.GetUniformLocation(shaderID, name), value);
+    }
+
+    public void SetInt(ref string name, int value)
+    {
+        gl.Uniform1(gl.GetUniformLocation(shaderID, name), value);
+    }
+
+    public void SetBool(ref string name, bool value)
+    {
+        gl.Uniform1(gl.GetUniformLocation(shaderID, name), value ? 1 : 0);
+    }
+
+    public void SetVector(ref string name, Vector4 value)
+    {
+        gl.Uniform4(gl.GetUniformLocation(shaderID, name), value);
+    }
     
 }
