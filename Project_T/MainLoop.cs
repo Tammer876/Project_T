@@ -12,38 +12,58 @@ namespace silkgl
     {
         private static IWindow window;
         private static GL gl;
-        private static uint vao;
         private static Shader shaderObject;
-        private static uint[] objectArray = new uint[3];
+
+        private static Vector2D<int> screenSize = new(800, 600);
 
 
-        private static List<VertexArray<float, uint>> savedTriangles;
+        private static List<VertexArray<uint>> savedTriangles = new();
 
         private enum Direction
         {
             Up, Down, Left, Right
         }
-        private static VertexArray<float, uint>[] outlines = new VertexArray<float, uint>[4];
+        private static VertexArray<uint>[] outlines = new VertexArray<uint>[4];
         private static Direction currentDirection = Direction.Up;
 
         private static IInputContext input;
 
 
-        //Vertex data, uploaded to the VBO.
-        private static float[] Vertices =
+        private static Vector2D<float> mousePos;
+
+
+        private static float[] OutlineUpV =
         {
             //X    Y      Z
-            0.5f,  0.5f, 0.0f,
-            0.5f, -0.5f, 0.0f,
-            -0.5f, -0.5f, 0.0f,
-            -0.5f,  0.5f, 0.5f
+            0f,  0.1f, 0.0f,
+            -0.1f, 0f, 0.0f,
+            0.0f, 0f, 0.0f
+        };
+        private static float[] OutlineDownV =
+        {
+            //X    Y      Z
+            0f,  -0.1f, 0.0f,
+            -0.1f, 0f, 0.0f,
+            0.1f, 0f, 0.0f
+        };
+        private static float[] OutlineLeftV =
+        {
+            //X    Y      Z
+            0f,  0.1f, 0.0f,
+            -0.1f, 0f, 0.0f,
+            0f, -0.1f, 0.0f
+        };
+        private static float[] OutlineRightV =
+        {
+            //X    Y      Z
+            0f,  0.1f, 0.0f,
+            0.1f, 0f, 0.0f,
+            0f, -0.1f, 0.0f
         };
 
-        //Index data, uploaded to the EBO.
         private static uint[] Indices =
         {
-            0, 1, 2,
-            3, 0, 2
+            0, 1, 2
         };
         
         
@@ -51,7 +71,7 @@ namespace silkgl
         {
             WindowOptions windowOptions = WindowOptions.Default with
             {
-                Size = new Vector2D<int>(800, 600),
+                Size = screenSize,
                 Title = "Project_T",
                 API = new GraphicsAPI(ContextAPI.OpenGL, ContextProfile.Core, ContextFlags.Default, new APIVersion(4, 1))
             };
@@ -78,16 +98,18 @@ namespace silkgl
             {
                 input.Keyboards[i].KeyDown += KeyDown;
             }
-            
-            
+
+            outlines[0] = new(ref gl, OutlineUpV.AsSpan(), Indices.AsSpan(), BufferUsageARB.StaticDraw, PrimitiveType.LineLoop);
+            outlines[1] = new(ref gl, OutlineDownV.AsSpan(), Indices.AsSpan(), BufferUsageARB.StaticDraw, PrimitiveType.LineLoop);
+            outlines[2] = new(ref gl, OutlineLeftV.AsSpan(), Indices.AsSpan(), BufferUsageARB.StaticDraw, PrimitiveType.LineLoop);
+            outlines[3] = new(ref gl, OutlineRightV.AsSpan(), Indices.AsSpan(), BufferUsageARB.StaticDraw, PrimitiveType.LineLoop);
+
             gl.ClearColor(0.0f, 0.0f, 0.0f, 0.0f);
             gl.Clear(ClearBufferMask.ColorBufferBit);
 
-            
-           objectArray = Renderer.InitVertexArray(ref gl, ref Vertices, ref Indices);
-           vao = objectArray[0];
+           
 
-           shaderObject = new Shader("Shaders/VertexShaderTest.glsl", 
+            shaderObject = new Shader("Shaders/VertexShaderTest.glsl", 
                "Shaders/FragmentShaderTest.glsl",
                gl);
            
@@ -98,20 +120,30 @@ namespace silkgl
 
         public static void OnUpdate(double obj)
         {
-            
+            var halfSize = (Vector2D<float>)(screenSize / new Vector2D<int>(2, 2));
+            mousePos = new Vector2D<float>(input.Mice[0].Position.X, input.Mice[0].Position.Y);
+            mousePos -= halfSize;
+            mousePos = mousePos / halfSize * new Vector2D<float>(1f, -1f);
         }
         
         public static unsafe void OnRender(double obj)
         {
             gl.Clear(ClearBufferMask.ColorBufferBit);
-            
-            gl.BindVertexArray(vao);
             shaderObject.Use();
-            
-            gl.DrawElements(PrimitiveType.Triangles, (uint) Indices.Length, DrawElementsType.UnsignedInt, null);
 
+            VertexArray<uint> movedOutline = new(outlines[(uint)currentDirection], mousePos);
 
-            VertexArray<float, uint> movedOutline = new VertexArray(outlines[(uint)currentDirection], new Vector2D<float>(input.Mice[0].Position.X, input.Mice[0].Position.Y));
+            movedOutline.Bind();
+
+            gl.DrawElements(PrimitiveType.Triangles, movedOutline.IndexCount, DrawElementsType.UnsignedInt, null);
+
+            foreach (var va in savedTriangles)
+            {
+                va.Bind();
+                gl.DrawElements(PrimitiveType.Triangles, va.IndexCount, DrawElementsType.UnsignedInt, null);
+            }
+
+            movedOutline.Dispose();
         }
 
         private static void OnFramebufferResize(Vector2D<int> newSize)
@@ -123,9 +155,6 @@ namespace silkgl
         {
             Console.WriteLine("Closing...");
             
-            gl.DeleteBuffer(objectArray[1]);
-            gl.DeleteBuffer(objectArray[2]);
-            gl.DeleteVertexArray(vao);
             shaderObject.Destroy();
         }
 
@@ -150,12 +179,21 @@ namespace silkgl
                 case Key.Space:
                     AddTriangle();
                     break;
+
+                case Key.Escape:
+                    savedTriangles.Clear();
+                    break;
+
+                case Key.Z:
+                    if (keyboard.IsKeyPressed(Key.ControlLeft))
+                        savedTriangles.RemoveRange(savedTriangles.Count - 1, 1);
+                    break;
             }
         }
 
         private static void AddTriangle()
         {
-            savedTriangles.Add(new VertexArray(outlines[(uint)currentDirection], new Vector2D<float>(input.Mice[0].Position.X, input.Mice[0].Position.Y)));
+            savedTriangles.Add(new VertexArray<uint>(outlines[(uint)currentDirection], mousePos));
         }
     }
 }

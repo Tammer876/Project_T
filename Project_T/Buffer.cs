@@ -1,4 +1,5 @@
 using System;
+using Silk.NET.Maths;
 using Silk.NET.OpenGL;
 
 namespace silkgl;
@@ -7,26 +8,28 @@ public class Buffer<TDataType> : IDisposable
 {
     private uint vbo;
     private uint length;
-    private BufferTargetARB bufferType;
-    private BufferUsageARB bufferUsage;
+    public TDataType[] data { get; private set; }
+    public BufferTargetARB bufferType { get; private set; }
+    public BufferUsageARB bufferUsage { get; private set; }
     private GL gl;
 
-    public Buffer(ref GL gl_ref, BufferTargetARB type, BufferUsageARB usage, ref Span<TDataType> data)
+    public Buffer(ref GL gl_ref, BufferTargetARB type, BufferUsageARB usage, Span<TDataType> data_span)
     {
         gl =  gl_ref;
         bufferType = type;
         bufferUsage = usage;
-        length = (uint) data.Length;
-        vbo = InitBuffer(ref data);
+        length = (uint) data_span.Length;
+        vbo = InitBuffer(data_span);
     }
     
-    private unsafe uint InitBuffer(ref Span<TDataType> data)
+    private unsafe uint InitBuffer(Span<TDataType> data_span)
     {
+        data = data_span.ToArray();
         uint buffer = gl.GenBuffer();
         Bind();
-        fixed (void* ptr = data)
+        fixed (void* ptr = data_span)
         {
-            gl.BufferData(bufferType, (uint) (data.Length * sizeof(TDataType)), ptr, bufferUsage);
+            gl.BufferData(bufferType, (uint) (data_span.Length * sizeof(TDataType)), ptr, bufferUsage);
         }
         
         return buffer;
