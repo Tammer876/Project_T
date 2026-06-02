@@ -3,7 +3,7 @@ using Silk.NET.OpenGL;
 
 namespace silkgl;
 
-public class Buffer<TDataType> : IDisposable where TDataType : unmanaged
+public class Buffer<TDataType> : IDisposable
 {
     private uint vbo;
     private BufferTargetARB bufferType;
@@ -30,7 +30,7 @@ public class Buffer<TDataType> : IDisposable where TDataType : unmanaged
         return buffer;
     }
 
-    private void Bind()
+    public void Bind()
     {
         gl.BindBuffer(bufferType, vbo);
     }

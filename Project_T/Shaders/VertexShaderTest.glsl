@@ -1,5 +1,5 @@
 #version 330 core //Using version GLSL version 3.3
-        layout (location = 0) in vec4 vPos;
+layout (location = 0) in vec4 vPos;
 
 void main()
 {
