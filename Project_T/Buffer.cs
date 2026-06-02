@@ -6,6 +6,7 @@ namespace silkgl;
 public class Buffer<TDataType> : IDisposable
 {
     private uint vbo;
+    private uint length;
     private BufferTargetARB bufferType;
     private BufferUsageARB bufferUsage;
     private GL gl;
@@ -15,6 +16,7 @@ public class Buffer<TDataType> : IDisposable
         gl =  gl_ref;
         bufferType = type;
         bufferUsage = usage;
+        length = (uint) data.Length;
         vbo = InitBuffer(ref data);
     }
     
@@ -34,6 +36,8 @@ public class Buffer<TDataType> : IDisposable
     {
         gl.BindBuffer(bufferType, vbo);
     }
+    
+    public uint Length => length;
 
     public void Dispose()
     {
