@@ -36,8 +36,8 @@ namespace silkgl
         {
             //X    Y      Z
             0f,  0.1f, 0.0f,
-            -0.1f, 0f, 0.0f,
-            0.0f, 0f, 0.0f
+            0.1f, 0f, 0.0f,
+            -0.1f, 0f, 0.0f
         };
         private static float[] OutlineDownV =
         {
@@ -99,12 +99,13 @@ namespace silkgl
                 input.Keyboards[i].KeyDown += KeyDown;
             }
 
-            outlines[0] = new(ref gl, OutlineUpV.AsSpan(), Indices.AsSpan(), BufferUsageARB.StaticDraw, PrimitiveType.LineLoop);
+            outlines[0] = new(ref gl, OutlineUpV.AsSpan(), Indices.AsSpan(), BufferUsageARB.StaticDraw, PrimitiveType.Triangles);
             outlines[1] = new(ref gl, OutlineDownV.AsSpan(), Indices.AsSpan(), BufferUsageARB.StaticDraw, PrimitiveType.LineLoop);
             outlines[2] = new(ref gl, OutlineLeftV.AsSpan(), Indices.AsSpan(), BufferUsageARB.StaticDraw, PrimitiveType.LineLoop);
             outlines[3] = new(ref gl, OutlineRightV.AsSpan(), Indices.AsSpan(), BufferUsageARB.StaticDraw, PrimitiveType.LineLoop);
 
             gl.ClearColor(0.0f, 0.0f, 0.0f, 0.0f);
+            //gl.ClearColor(1f, 0f, 0f, 1f);
             gl.Clear(ClearBufferMask.ColorBufferBit);
 
            
@@ -128,22 +129,25 @@ namespace silkgl
         
         public static unsafe void OnRender(double obj)
         {
+           
             gl.Clear(ClearBufferMask.ColorBufferBit);
-            shaderObject.Use();
+            
+
 
             VertexArray<uint> movedOutline = new(outlines[(uint)currentDirection], mousePos);
 
             movedOutline.Bind();
-
+            shaderObject.Use();
             gl.DrawElements(PrimitiveType.Triangles, movedOutline.IndexCount, DrawElementsType.UnsignedInt, null);
 
             foreach (var va in savedTriangles)
             {
                 va.Bind();
+                shaderObject.Use();
                 gl.DrawElements(PrimitiveType.Triangles, va.IndexCount, DrawElementsType.UnsignedInt, null);
             }
 
-            movedOutline.Dispose();
+            //movedOutline.Dispose();
         }
 
         private static void OnFramebufferResize(Vector2D<int> newSize)

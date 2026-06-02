@@ -1,0 +1,87 @@
+{
+  "Version": 1,
+  "WorkspaceRootPath": "C:\\Users\\oda33\\source\\repos\\Project_T\\",
+  "Documents": [
+    {
+      "AbsoluteMoniker": "D:0:0:{E77117A0-56C4-4239-A291-DAE47B337A64}|Project_T\\silkgl.csproj|c:\\users\\oda33\\source\\repos\\project_t\\project_t\\mainloop.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{E77117A0-56C4-4239-A291-DAE47B337A64}|Project_T\\silkgl.csproj|solutionrelative:project_t\\mainloop.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{E77117A0-56C4-4239-A291-DAE47B337A64}|Project_T\\silkgl.csproj|c:\\users\\oda33\\source\\repos\\project_t\\project_t\\vertexarray.cs||{8B382828-6202-11D1-8870-0000F87579D2}",
+      "RelativeMoniker": "D:0:0:{E77117A0-56C4-4239-A291-DAE47B337A64}|Project_T\\silkgl.csproj|solutionrelative:project_t\\vertexarray.cs||{8B382828-6202-11D1-8870-0000F87579D2}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{E77117A0-56C4-4239-A291-DAE47B337A64}|Project_T\\silkgl.csproj|c:\\users\\oda33\\source\\repos\\project_t\\project_t\\buffer.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{E77117A0-56C4-4239-A291-DAE47B337A64}|Project_T\\silkgl.csproj|solutionrelative:project_t\\buffer.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    }
+  ],
+  "DocumentGroupContainers": [
+    {
+      "Orientation": 0,
+      "VerticalTabListWidth": 256,
+      "DocumentGroups": [
+        {
+          "DockedWidth": 254,
+          "SelectedChildIndex": 4,
+          "Children": [
+            {
+              "$type": "Bookmark",
+              "Name": "ST:129:0:{1fc202d4-d401-403c-9834-5b218574bb67}"
+            },
+            {
+              "$type": "Bookmark",
+              "Name": "ST:129:0:{116d2292-e37d-41cd-a077-ebacac4c8cc4}"
+            },
+            {
+              "$type": "Bookmark",
+              "Name": "ST:130:0:{116d2292-e37d-41cd-a077-ebacac4c8cc4}"
+            },
+            {
+              "$type": "Bookmark",
+              "Name": "ST:128:0:{1fc202d4-d401-403c-9834-5b218574bb67}"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 0,
+              "Title": "MainLoop.cs",
+              "DocumentMoniker": "C:\\Users\\oda33\\source\\repos\\Project_T\\Project_T\\MainLoop.cs",
+              "RelativeDocumentMoniker": "Project_T\\MainLoop.cs",
+              "ToolTip": "C:\\Users\\oda33\\source\\repos\\Project_T\\Project_T\\MainLoop.cs",
+              "RelativeToolTip": "Project_T\\MainLoop.cs",
+              "ViewState": "AgIAAK4AAAAAAAAAAAAAAL4AAAAbAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-06-02T09:05:17.1Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 1,
+              "Title": "VertexArray.cs",
+              "DocumentMoniker": "C:\\Users\\oda33\\source\\repos\\Project_T\\Project_T\\VertexArray.cs",
+              "RelativeDocumentMoniker": "Project_T\\VertexArray.cs",
+              "ToolTip": "C:\\Users\\oda33\\source\\repos\\Project_T\\Project_T\\VertexArray.cs",
+              "RelativeToolTip": "Project_T\\VertexArray.cs",
+              "ViewState": "AgIAACoAAAAAAAAAAAAAABQAAAA6AAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-06-02T11:03:20.051Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 2,
+              "Title": "Buffer.cs",
+              "DocumentMoniker": "C:\\Users\\oda33\\source\\repos\\Project_T\\Project_T\\Buffer.cs",
+              "RelativeDocumentMoniker": "Project_T\\Buffer.cs",
+              "ToolTip": "C:\\Users\\oda33\\source\\repos\\Project_T\\Project_T\\Buffer.cs",
+              "RelativeToolTip": "Project_T\\Buffer.cs",
+              "ViewState": "AgIAAA8AAAAAAAAAAAAAACEAAAAJAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-06-02T11:06:38.379Z",
+              "EditorCaption": ""
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

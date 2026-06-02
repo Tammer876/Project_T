@@ -5,6 +5,7 @@ using Silk.NET.OpenGL;
 namespace silkgl;
 
 public class Buffer<TDataType> : IDisposable
+    where TDataType : unmanaged
 {
     private uint vbo;
     private uint length;
@@ -19,20 +20,18 @@ public class Buffer<TDataType> : IDisposable
         bufferType = type;
         bufferUsage = usage;
         length = (uint) data_span.Length;
-        vbo = InitBuffer(data_span);
+        InitBuffer(data_span);
     }
     
-    private unsafe uint InitBuffer(Span<TDataType> data_span)
+    private unsafe void InitBuffer(Span<TDataType> data_span)
     {
         data = data_span.ToArray();
-        uint buffer = gl.GenBuffer();
+        vbo = gl.GenBuffer();
         Bind();
         fixed (void* ptr = data_span)
         {
             gl.BufferData(bufferType, (uint) (data_span.Length * sizeof(TDataType)), ptr, bufferUsage);
         }
-        
-        return buffer;
     }
 
     public void Bind()
