@@ -4,6 +4,7 @@ using Silk.NET.Windowing;
 using Silk.NET.Input;
 using Silk.NET.OpenGL;
 using Silk.NET.Maths;
+using System.Collections.Generic;
 
 namespace silkgl
 {
@@ -14,27 +15,19 @@ namespace silkgl
         private static uint vao;
         private static Shader shaderObject;
         private static uint[] objectArray = new uint[3];
-        
-        private static readonly string VertexShaderSource = @"
-        #version 330 core //Using version GLSL version 3.3
-        layout (location = 0) in vec4 vPos;
-        
-        void main()
-        {
-            gl_Position = vec4(vPos.x, vPos.y, vPos.z, 1.0);
-        }
-        ";
 
-        //Fragment shaders are run on each fragment/pixel of the geometry.
-        private static readonly string FragmentShaderSource = @"
-        #version 330 core
-        out vec4 FragColor;
 
-        void main()
+        private static List<VertexArray<float, uint>> savedTriangles;
+
+        private enum Direction
         {
-            FragColor = vec4(1.0f, 1.0f, 1.0f, 1.0f);
+            Up, Down, Left, Right
         }
-        ";
+        private static VertexArray<float, uint>[] outlines = new VertexArray<float, uint>[4];
+        private static Direction currentDirection = Direction.Up;
+
+        private static IInputContext input;
+
 
         //Vertex data, uploaded to the VBO.
         private static float[] Vertices =
@@ -80,11 +73,12 @@ namespace silkgl
         public static unsafe void OnLoad()
         {
             gl = GL.GetApi(window);
-            IInputContext input = window.CreateInput();
+            input = window.CreateInput();
             for (int i = 0; i < input.Keyboards.Count; i++)
             {
                 input.Keyboards[i].KeyDown += KeyDown;
             }
+            
             
             gl.ClearColor(0.0f, 0.0f, 0.0f, 0.0f);
             gl.Clear(ClearBufferMask.ColorBufferBit);
@@ -132,85 +126,34 @@ namespace silkgl
             shaderObject.Destroy();
         }
 
-        private static unsafe void KeyDown(IKeyboard keyboard, Key key, int arg)
+
+        private static void KeyDown(IKeyboard keyboard, Key key, int arg)
         {
             switch (key)
             {
                 case Key.W:
-                    gl.DeleteBuffer(objectArray[1]);
-                    gl.DeleteBuffer(objectArray[2]);
-                    gl.DeleteVertexArray(vao);
-                    
-                    vao = gl.GenVertexArray();
-                    gl.BindVertexArray(vao);
-                    
-                    objectArray[1] = gl.GenBuffer();
-                    gl.BindBuffer(BufferTargetARB.ArrayBuffer, objectArray[1]);
-                    float[] expandedVertices =
-                    {
-                        //X    Y      Z
-                        0.5f, 1.0f, 0.0f,
-                        0.5f, -0.5f, 0.0f,
-                        -0.5f, -0.5f, 0.0f,
-                        -0.5f, 1.0f, 0.5f
-                    };
-                    fixed (void* verticesPtr = &expandedVertices[0])
-                    {
-                        gl.BufferData(BufferTargetARB.ArrayBuffer, (uint) (expandedVertices.Length * sizeof(uint)), verticesPtr, BufferUsageARB.StaticDraw);
-                    }
-                    
-                    objectArray[2] = gl.GenBuffer();
-                    gl.BindBuffer(BufferTargetARB.ElementArrayBuffer, objectArray[2]);
-                    fixed (void* indicesPtr = &Indices[0])
-                    {
-                        gl.BufferData(BufferTargetARB.ElementArrayBuffer, (uint) (Indices.Length * sizeof(uint)), indicesPtr, BufferUsageARB.StaticDraw);
-                    }
-                    
-                    gl.VertexAttribPointer(0, 3, VertexAttribPointerType.Float, false, 3 * sizeof(float), null);
-                    shaderObject.Use();
-                    gl.EnableVertexAttribArray(0);
-                    gl.BindBuffer(BufferTargetARB.ArrayBuffer, 0);
+                    currentDirection = Direction.Up;
                     break;
                 case Key.S:
-                    gl.DeleteBuffer(objectArray[1]);
-                    gl.DeleteBuffer(objectArray[2]);
-                    gl.DeleteVertexArray(vao);
-                    
-                    vao = gl.GenVertexArray();
-                    gl.BindVertexArray(vao);
-                    
-                    objectArray[1] = gl.GenBuffer();
-                    gl.BindBuffer(BufferTargetARB.ArrayBuffer, objectArray[1]);
-                    fixed (void* verticesPtr = &Vertices[0])
-                    {
-                        gl.BufferData(BufferTargetARB.ArrayBuffer, (uint) (Vertices.Length * sizeof(uint)), verticesPtr, BufferUsageARB.StaticDraw);
-                    }
-                    
-                    objectArray[2] = gl.GenBuffer();
-                    gl.BindBuffer(BufferTargetARB.ElementArrayBuffer, objectArray[2]);
-                    fixed (void* indicesPtr = &Indices[0])
-                    {
-                        gl.BufferData(BufferTargetARB.ElementArrayBuffer, (uint) (Indices.Length * sizeof(uint)), indicesPtr, BufferUsageARB.StaticDraw);
-                    }
-                    
-                    gl.VertexAttribPointer(0, 3, VertexAttribPointerType.Float, false, 3 * sizeof(float), null);
-                    shaderObject.Use();
-                    gl.EnableVertexAttribArray(0);
-                    gl.BindBuffer(BufferTargetARB.ArrayBuffer, 0);
+                    currentDirection = Direction.Down;
                     break;
-                case Key.G:
-                    gl.ClearColor(0.0f, 1f, 0.0f, 1.0f);
+                case Key.A:
+                    currentDirection = Direction.Left;
                     break;
-                case Key.R:
-                    gl.ClearColor(1f, 0.0f, 0.0f, 1.0f);
+                case Key.D:
+                    currentDirection = Direction.Right;
                     break;
-                case Key.C:
-                    gl.ClearColor(0.0f, 0.0f, 0.0f, 0.0f);
-                    break;
-                case Key.Escape:
-                    window.Close();
+
+                case Key.Space:
+                    AddTriangle();
                     break;
             }
+        }
+
+        private static void AddTriangle()
+        {
+            savedTriangles.Add(outlines[(uint)currentDirection]);
+            //input.Mice[0].Position;
         }
     }
 }
