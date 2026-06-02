@@ -7,6 +7,8 @@ public class VertexArray<TVertex, TIndex> : IDisposable
     
 {
     private uint vao;
+    private Buffer<TVertex> vbo;
+    private Buffer<TIndex> ebo;
     private PrimitiveType primitiveType;
     private GL gl;
 
@@ -16,12 +18,16 @@ public class VertexArray<TVertex, TIndex> : IDisposable
         primitiveType = primitive;
         // vao = initVertexArray();
     }
+    
+    
 
-    public VertexArray(ref GL gl_ref, Buffer<TVertex> vbo, Buffer<TIndex> ebo, PrimitiveType primitive)
+    public VertexArray(ref GL gl_ref, Buffer<TVertex> vbo_ref, Buffer<TIndex> ebo_ref, PrimitiveType primitive)
     {
         gl = gl_ref;
         primitiveType = primitive;
         vao = gl.GenVertexArray();
+        vbo = vbo_ref;
+        ebo = ebo_ref;
         Bind();
         vbo.Bind();
         ebo.Bind();
@@ -31,8 +37,8 @@ public class VertexArray<TVertex, TIndex> : IDisposable
     {
         uint vArray = gl.GenVertexArray();
         Bind();
-        Buffer<TVertex> vbo = new(ref gl, BufferTargetARB.ArrayBuffer, bufferUsage, ref vertexArr);
-        Buffer<TIndex> ebo = new(ref gl, BufferTargetARB.ElementArrayBuffer, bufferUsage, ref indexArr);
+        vbo = new(ref gl, BufferTargetARB.ArrayBuffer, bufferUsage, ref vertexArr);
+        ebo = new(ref gl, BufferTargetARB.ElementArrayBuffer, bufferUsage, ref indexArr);
         
         return vArray;
     }
@@ -47,7 +53,8 @@ public class VertexArray<TVertex, TIndex> : IDisposable
         gl.VertexAttribPointer(index, size, type, normalized, stride, pointer);
         gl.EnableVertexAttribArray(index);
     }
-    
+
+    public uint IndexCount => ebo.Length;
     public void Dispose()
     {
         gl.DeleteVertexArray(vao);
