@@ -98,7 +98,7 @@ namespace silkgl
 
         public static void OnUpdate(double obj)
         {
-        
+            
         }
         
         public static unsafe void OnRender(double obj)
@@ -109,6 +109,9 @@ namespace silkgl
             shaderObject.Use();
             
             gl.DrawElements(PrimitiveType.Triangles, (uint) Indices.Length, DrawElementsType.UnsignedInt, null);
+
+
+            VertexArray<float, uint> movedOutline = new VertexArray(outlines[(uint)currentDirection], new Vector2D<float>(input.Mice[0].Position.X, input.Mice[0].Position.Y));
         }
 
         private static void OnFramebufferResize(Vector2D<int> newSize)
@@ -152,8 +155,7 @@ namespace silkgl
 
         private static void AddTriangle()
         {
-            savedTriangles.Add(outlines[(uint)currentDirection]);
-            //input.Mice[0].Position;
+            savedTriangles.Add(new VertexArray(outlines[(uint)currentDirection], new Vector2D<float>(input.Mice[0].Position.X, input.Mice[0].Position.Y)));
         }
     }
 }
