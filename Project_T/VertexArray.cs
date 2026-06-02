@@ -42,9 +42,10 @@ public class VertexArray<TVertex, TIndex> : IDisposable
         gl.BindVertexArray(vao);
     }
 
-    public unsafe void VertexAttribPointer(uint index, int size, VertexAttribPointerType type, bool normalized, int stride, void* pointer)
+    public unsafe void VertexAttribPointer(uint index, int size, VertexAttribPointerType type, bool normalized, uint stride, void* pointer)
     {
-        // gl.VertexAttribPointer();
+        gl.VertexAttribPointer(index, size, type, normalized, stride, pointer);
+        gl.EnableVertexAttribArray(index);
     }
     
     public void Dispose()
